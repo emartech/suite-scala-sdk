@@ -13,7 +13,7 @@ import org.scalatest.{AsyncWordSpec, Matchers}
 
 import scala.concurrent.ExecutionContextExecutor
 
-class ContactFieldSpec extends AsyncWordSpec with Matchers with ScalaFutures {
+class ContactFieldApiSpec extends AsyncWordSpec with Matchers with ScalaFutures {
 
   implicit val system       = ActorSystem("test-system")
   implicit val materializer = ActorMaterializer()
