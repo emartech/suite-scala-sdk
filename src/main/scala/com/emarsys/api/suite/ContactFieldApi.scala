@@ -20,6 +20,13 @@ private[suite] trait ContactFieldApi extends SuiteClient {
 
     run[ListResponse](request)
   }
+
+  def list(customerId: Int, languageCode: String): Future[ListResponse] = {
+    val path    = s"field/translate/$languageCode"
+    val request = RequestBuilding.Get(Uri(baseUrl(customerId) + path))
+
+    run[ListResponse](request)
+  }
 }
 
 object ContactFieldApi {

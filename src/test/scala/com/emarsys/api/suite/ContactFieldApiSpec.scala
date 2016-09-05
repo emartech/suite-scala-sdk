@@ -50,7 +50,7 @@ class ContactFieldApiSpec extends AsyncWordSpec with Matchers with ScalaFutures 
                         |    {
                         |      "id": 9,
                         |      "name": "Title",
-                        |      "application_type": "singlechoice",
+                        |      "application_type": "single choice",
                         |      "string_id": ""
                         |    }
                         |  ]
@@ -66,7 +66,18 @@ class ContactFieldApiSpec extends AsyncWordSpec with Matchers with ScalaFutures 
           response.replyText shouldEqual "OK"
           response.data shouldEqual List(
             FieldItem(0, "Interests", "interests", "interests"),
-            FieldItem(9, "Title", "singlechoice", "")
+            FieldItem(9, "Title", "single choice", "")
+          )
+        }
+      }
+
+      "return translated existing fields for in case of successful response" in {
+        contactField(OK, validResponse).list(customerId, "en") map { response =>
+          response.replyCode shouldEqual 0
+          response.replyText shouldEqual "OK"
+          response.data shouldEqual List(
+            FieldItem(0, "Interests", "interests", "interests"),
+            FieldItem(9, "Title", "single choice", "")
           )
         }
       }
