@@ -1,6 +1,6 @@
 name         := "suite-scala-sdk"
 organization := "com.emarsys"
-version      := "0.0.2"
+version      := "0.0.3"
 scalaVersion := "2.11.8"
 
 scalacOptions ++= Seq(
@@ -27,7 +27,6 @@ libraryDependencies ++= {
     "com.typesafe.akka"     %% "akka-http-spray-json-experimental" % akkaV,
     "com.github.fommil"     %% "spray-json-shapeless"              % "1.2.0",
     "org.scalatest"         %% "scalatest"                         % scalaTestV % "test",
-    "com.emarsys"           %  "escher"                            % "0.3",
     "com.emarsys"           %% "escher-akka-http"                  % "0.0.6"
   )
 }
