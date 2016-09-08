@@ -29,8 +29,8 @@ trait RestClient extends EscherDirectives {
     signed   <- signRequest(serviceName)(executor, materializer)(request)
     response <- sendRequest(signed)
     result   <- response.status match {
-            case OK     => Unmarshal(response.entity).to[S]
-            case status => Unmarshal(response.entity).to[String].map { responseBody =>
+            case s: Success => Unmarshal(response.entity).to[S]
+            case status     => Unmarshal(response.entity).to[String].map { responseBody =>
               system.log.error("Request to {} failed with status: {} / body: {}", request.uri, status, responseBody)
               throw new Exception(s"Rest client request failed for ${request.uri}")
             }
