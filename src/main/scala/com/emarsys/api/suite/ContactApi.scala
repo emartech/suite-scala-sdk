@@ -18,10 +18,12 @@ private[suite] trait ContactApi extends SuiteClient {
     val path    = "contact/getdata"
     val request = RequestBuilding.Post(Uri(baseUrl(customerId) + path), entity)
 
-    run[GetDataRawResponse](request).map {
-      case GetDataRawResponse(c, t, Right(r)) => GetDataResponse(c, t, r)
-      case GetDataRawResponse(c, t, Left(_)) => GetDataResponse(c, t, GetDataResult(Left(false), Nil))
-    }
+    run[GetDataRawResponse](request).map(getDataResponseTransformer)
+  }
+
+  val getDataResponseTransformer: (GetDataRawResponse) => GetDataResponse = {
+    case GetDataRawResponse(c, t, Right(r)) => GetDataResponse(c, t, r)
+    case GetDataRawResponse(c, t, Left(_))  => GetDataResponse(c, t, GetDataResult(Left(false), Nil))
   }
 }
 

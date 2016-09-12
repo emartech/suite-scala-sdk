@@ -35,9 +35,10 @@ class ContactFieldApiSpec extends AsyncWordSpec with Matchers with ScalaFutures 
       }
   }
 
-  val customerId      = 123
-  val invalidResponse = """{"replyCode":1,"replyText":"Unauthorized","data":""}"""
-  val validResponse   = """{
+  val customerId        = 123
+  val invalidResponse   = "invalid"
+  val emptyDataResponse = """{"replyCode":1,"replyText":"Unauthorized","data":""}"""
+  val validResponse     = """{
                         |  "replyCode": 0,
                         |  "replyText": "OK",
                         |  "data": [
@@ -79,6 +80,20 @@ class ContactFieldApiSpec extends AsyncWordSpec with Matchers with ScalaFutures 
             FieldItem(0, "Interests", "interests", "interests"),
             FieldItem(9, "Title", "single choice", "")
           )
+        }
+      }
+
+      "return empty list for data in case of empty data response" in {
+        contactField(OK, emptyDataResponse).list(customerId, "en") map { response =>
+          response.replyCode shouldEqual 1
+          response.replyText shouldEqual "Unauthorized"
+          response.data shouldEqual List()
+        }
+      }
+
+      "return empty list for data in case of empty data response and unsuccessful http status" in {
+        recoverToSucceededIf[Exception] {
+          contactField(Unauthorized, emptyDataResponse).list(customerId, "en")
         }
       }
 

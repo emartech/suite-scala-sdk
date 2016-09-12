@@ -35,10 +35,10 @@ class ContactApiSpec extends AsyncWordSpec with Matchers with ScalaFutures {
       }
   }
 
-  val customerId        = 123
-  val invalidResponse   = "invalid"
-  val unauthorized      = """{"replyCode":1,"replyText":"Unauthorized","data":""}"""
-  val validResponse     = """{
+  val customerId          = 123
+  val invalidResponse     = "invalid"
+  val emptyDataResponse   = """{"replyCode":1,"replyText":"Unauthorized","data":""}"""
+  val validResponse       = """{
                             |  "replyCode": 0,
                             |  "replyText": "OK",
                             |  "data": {
@@ -54,7 +54,7 @@ class ContactApiSpec extends AsyncWordSpec with Matchers with ScalaFutures {
                             |    ]
                             |  }
                             |}""".stripMargin
-  val responseWithError =  """{
+  val falseResultResponse = """{
                              |   "replyCode":0,
                              |   "replyText":"OK",
                              |   "data":{
@@ -82,23 +82,33 @@ class ContactApiSpec extends AsyncWordSpec with Matchers with ScalaFutures {
         contactApi(OK, validResponse).getData(customerId, GetDataRequest("id", Nil, None)) map { response =>
           response.replyCode shouldEqual 0
           response.replyText shouldEqual "OK"
-          response.data shouldEqual GetDataResult(Right(List(
-            Map("id" -> Some("123"), "uid" -> Some("abc"), "0" -> None, "1" -> Some("Peter"), "100007887" -> None)
-          )), Nil)
+          response.data shouldEqual GetDataResult(
+            Right(
+              List(
+                Map("id" -> Some("123"), "uid" -> Some("abc"), "0" -> None, "1" -> Some("Peter"), "100007887" -> None)
+              )),
+            Nil)
         }
       }
 
       "return false response and list of errors if response data contains false result and errors" in {
-        contactApi(OK, responseWithError).getData(customerId, GetDataRequest("id", Nil, None)) map { response =>
-          response.data shouldEqual GetDataResult(Left(false), List(
-            GetDataError("ironman@example.com", 2008, "No contact found with the external id: 3"),
-            GetDataError("hulk@example.com", 2008, "No contact found with the external id: 3")))
+        contactApi(OK, falseResultResponse).getData(customerId, GetDataRequest("id", Nil, None)) map { response =>
+          response.data shouldEqual GetDataResult(
+            Left(false),
+            List(GetDataError("ironman@example.com", 2008, "No contact found with the external id: 3"),
+                 GetDataError("hulk@example.com", 2008, "No contact found with the external id: 3")))
         }
       }
 
       "return false response and empty list of errors if data is empty string - thanks suite API" in {
-        contactApi(OK, unauthorized).getData(customerId, GetDataRequest("id", Nil, None)) map { response =>
+        contactApi(OK, emptyDataResponse).getData(customerId, GetDataRequest("id", Nil, None)) map { response =>
           response.data shouldEqual GetDataResult(Left(false), Nil)
+        }
+      }
+
+      "return failure in case of non-success status code" in {
+        recoverToSucceededIf[Exception] {
+          contactApi(Unauthorized, emptyDataResponse).getData(customerId, GetDataRequest("id", Nil, None))
         }
       }
 
@@ -108,17 +118,11 @@ class ContactApiSpec extends AsyncWordSpec with Matchers with ScalaFutures {
         }
       }
 
-      "return failure in case of non-success status code" in {
-        recoverToSucceededIf[Exception] {
-          contactApi(Unauthorized, invalidResponse).getData(customerId, GetDataRequest("id", Nil, None))
-        }
-      }
-
     }
   }
 
   def contactApi(httpStatus: StatusCode, requestEntity: String) = {
     TestContactApi(escherConfig,
-                        HttpResponse(httpStatus, Nil, HttpEntity(ContentTypes.`application/json`, requestEntity)))
+                   HttpResponse(httpStatus, Nil, HttpEntity(ContentTypes.`application/json`, requestEntity)))
   }
 }
