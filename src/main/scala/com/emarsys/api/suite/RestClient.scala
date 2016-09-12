@@ -9,8 +9,6 @@ import akka.http.scaladsl.unmarshalling.{Unmarshal, Unmarshaller}
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Flow, Sink, Source}
 import com.emarsys.escher.akka.http.EscherDirectives
-import fommil.sjs.FamilyFormats._
-import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 
 trait RestClient extends EscherDirectives {
   implicit val system:       ActorSystem

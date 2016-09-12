@@ -5,7 +5,7 @@ import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.model._
 import akka.stream.scaladsl.Flow
 import akka.stream.{ActorMaterializer, Materializer}
-import com.emarsys.api.suite.ContactApi.{GetDataRequest, GetDataResult}
+import com.emarsys.api.suite.ContactApi.{GetDataError, GetDataRequest, GetDataResult}
 import com.emarsys.escher.akka.http.config.EscherConfig
 import com.typesafe.config.ConfigFactory
 import org.scalatest.concurrent.ScalaFutures
@@ -36,7 +36,8 @@ class ContactApiSpec extends AsyncWordSpec with Matchers with ScalaFutures {
   }
 
   val customerId        = 123
-  val invalidResponse   = """{"replyCode":1,"replyText":"Unauthorized","data":""}"""
+  val invalidResponse   = "invalid"
+  val unauthorized      = """{"replyCode":1,"replyText":"Unauthorized","data":""}"""
   val validResponse     = """{
                             |  "replyCode": 0,
                             |  "replyText": "OK",
@@ -60,32 +61,18 @@ class ContactApiSpec extends AsyncWordSpec with Matchers with ScalaFutures {
                              |      "errors":[
                              |         {
                              |            "key":"ironman@example.com",
-                             |            "errorCode":"2008",
+                             |            "errorCode":2008,
                              |            "errorMsg":"No contact found with the external id: 3"
                              |         },
                              |         {
                              |            "key":"hulk@example.com",
-                             |            "errorCode":"2008",
+                             |            "errorCode":2008,
                              |            "errorMsg":"No contact found with the external id: 3"
                              |         }
-                             |      ]
+                             |      ],
+                             |    "result": false
                              |   }
                              |}""".stripMargin
-
-val falseResult         =  """{
-                           |  "replyCode": 0,
-                           |  "replyText": "OK",
-                           |  "data": {
-                           |    "errors": [
-                           |      {
-                           |        "key": "ironman@example.com",
-                           |        "errorCode": 2008,
-                           |        "errorMsg": "No contact found with the external id: 3"
-                           |      }
-                           |    ],
-                           |    "result": false
-                           |  }
-                           |}""".stripMargin
 
   "Contact Api" when {
 
@@ -95,29 +82,38 @@ val falseResult         =  """{
         contactApi(OK, validResponse).getData(customerId, GetDataRequest("id", Nil, None)) map { response =>
           response.replyCode shouldEqual 0
           response.replyText shouldEqual "OK"
-          response.data shouldEqual GetDataResult(List(
+          response.data shouldEqual GetDataResult(Right(List(
             Map("id" -> Some("123"), "uid" -> Some("abc"), "0" -> None, "1" -> Some("Peter"), "100007887" -> None)
-          ), Nil)
+          )), Nil)
         }
       }
 
-      "return failure if response data not contains result" in {
+      "return false response and list of errors if response data contains false result and errors" in {
+        contactApi(OK, responseWithError).getData(customerId, GetDataRequest("id", Nil, None)) map { response =>
+          response.data shouldEqual GetDataResult(Left(false), List(
+            GetDataError("ironman@example.com", 2008, "No contact found with the external id: 3"),
+            GetDataError("hulk@example.com", 2008, "No contact found with the external id: 3")))
+        }
+      }
+
+      "return false response and empty list of errors if data is empty string - thanks suite API" in {
+        contactApi(OK, unauthorized).getData(customerId, GetDataRequest("id", Nil, None)) map { response =>
+          response.data shouldEqual GetDataResult(Left(false), Nil)
+        }
+      }
+
+      "return failure in case of invalid but successful response" in {
         recoverToSucceededIf[Exception] {
-          contactApi(OK, responseWithError).getData(customerId, GetDataRequest("id", Nil, None))
+          contactApi(OK, invalidResponse).getData(customerId, GetDataRequest("id", Nil, None))
         }
       }
 
-      "return failure if response data contains result with false value" in {
-        recoverToSucceededIf[Exception] {
-          contactApi(OK, falseResult).getData(customerId, GetDataRequest("id", Nil, None))
-        }
-      }
-
-      "return failure in case of failed response" in {
+      "return failure in case of non-success status code" in {
         recoverToSucceededIf[Exception] {
           contactApi(Unauthorized, invalidResponse).getData(customerId, GetDataRequest("id", Nil, None))
         }
       }
+
     }
   }
 
