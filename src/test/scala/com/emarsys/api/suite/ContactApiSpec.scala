@@ -82,19 +82,21 @@ class ContactApiSpec extends AsyncWordSpec with Matchers with ScalaFutures {
         contactApi(OK, validResponse).getData(customerId, GetDataRequest("id", Nil, None)) map { response =>
           response.replyCode shouldEqual 0
           response.replyText shouldEqual "OK"
-          response.data shouldEqual GetDataResult(
-            Right(
-              List(
-                Map("id" -> Some("123"), "uid" -> Some("abc"), "0" -> None, "1" -> Some("Peter"), "100007887" -> None)
-              )),
-            Nil)
+          response.data shouldEqual GetDataResult(List(
+                                                    Map("id"        -> Some("123"),
+                                                        "uid"       -> Some("abc"),
+                                                        "0"         -> None,
+                                                        "1"         -> Some("Peter"),
+                                                        "100007887" -> None)
+                                                  ),
+                                                  Nil)
         }
       }
 
       "return false response and list of errors if response data contains false result and errors" in {
         contactApi(OK, falseResultResponse).getData(customerId, GetDataRequest("id", Nil, None)) map { response =>
           response.data shouldEqual GetDataResult(
-            Left(false),
+            Nil,
             List(GetDataError("ironman@example.com", 2008, "No contact found with the external id: 3"),
                  GetDataError("hulk@example.com", 2008, "No contact found with the external id: 3")))
         }
@@ -102,7 +104,7 @@ class ContactApiSpec extends AsyncWordSpec with Matchers with ScalaFutures {
 
       "return false response and empty list of errors if data is empty string - thanks suite API" in {
         contactApi(OK, emptyDataResponse).getData(customerId, GetDataRequest("id", Nil, None)) map { response =>
-          response.data shouldEqual GetDataResult(Left(false), Nil)
+          response.data shouldEqual GetDataResult(Nil, Nil)
         }
       }
 

@@ -21,9 +21,14 @@ private[suite] trait ContactApi extends SuiteClient {
     run[GetDataRawResponse](request).map(getDataResponseTransformer)
   }
 
+  val getDataResultTransformer: (GetDataRawResult) => GetDataResult = {
+    case GetDataRawResult(Right(r), e) => GetDataResult(r, e)
+    case GetDataRawResult(Left(_), e)  => GetDataResult(Nil, e)
+  }
+
   val getDataResponseTransformer: (GetDataRawResponse) => GetDataResponse = {
-    case GetDataRawResponse(c, t, Right(r)) => GetDataResponse(c, t, r)
-    case GetDataRawResponse(c, t, Left(_))  => GetDataResponse(c, t, GetDataResult(Left(false), Nil))
+    case GetDataRawResponse(c, t, Right(d)) => GetDataResponse(c, t, getDataResultTransformer(d))
+    case GetDataRawResponse(c, t, Left(_))  => GetDataResponse(c, t, GetDataResult(Nil, Nil))
   }
 }
 
@@ -35,8 +40,9 @@ object ContactApi {
   case class GetDataResponse(replyCode: Int, replyText: String, data: GetDataResult)
 
   case class GetDataError(key: String, errorCode: Int, errorMsg: String)
-  case class GetDataResult(result: Either[Boolean, GetDataResultPart], errors: List[GetDataError])
-  case class GetDataRawResponse(replyCode: Int, replyText: String, data: Either[String, GetDataResult])
+  case class GetDataResult(result: GetDataResultPart, errors: List[GetDataError])
+  case class GetDataRawResult(result: Either[Boolean, GetDataResultPart], errors: List[GetDataError])
+  case class GetDataRawResponse(replyCode: Int, replyText: String, data: Either[String, GetDataRawResult])
 
   def apply(eConfig: EscherConfig)(implicit sys: ActorSystem, mat: Materializer, ex: ExecutionContextExecutor) = {
 
