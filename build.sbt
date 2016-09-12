@@ -1,6 +1,6 @@
 name         := "suite-scala-sdk"
 organization := "com.emarsys"
-version      := "0.0.4"
+version      := "0.0.5"
 scalaVersion := "2.11.8"
 
 scalacOptions ++= Seq(
