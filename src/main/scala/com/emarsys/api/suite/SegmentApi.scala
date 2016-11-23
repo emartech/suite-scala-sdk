@@ -29,8 +29,8 @@ object SegmentApi {
                                   description: String, baseContactListId: Option[Int])
 
   sealed trait ContactCriteria
-  case class ContactCriteriaBranch(typef: String, children: List[ContactCriteria]) extends ContactCriteria
-  case class ContactCriteriaLeaf(typef: String, field: String, operator: String, value: String) extends ContactCriteria
+  case class ContactCriteriaBranch(`type`: String, children: List[ContactCriteria]) extends ContactCriteria
+  case class ContactCriteriaLeaf(`type`: String, field: String, operator: String, value: String) extends ContactCriteria
 
   case class SegmentCreateRawResponse(string: String)
 

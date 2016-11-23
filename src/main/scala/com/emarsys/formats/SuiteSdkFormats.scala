@@ -11,6 +11,8 @@ object SuiteSdkFormats extends DefaultJsonProtocol with FamilyFormats  {
     implicit override def eitherFormat[A, B](implicit a: JsonFormat[A], b: JsonFormat[B]) = super.eitherFormat[A, B]
 
     implicit val getDataRawResponseF: JsonFormat[GetDataRawResponse] = cachedImplicit
-    implicit val contactCriteriaF: JsonFormat[ContactCriteria] = cachedImplicit
+    implicit val contactCriteriaF: JsonFormat[ContactCriteria]       = cachedImplicit
+
+    override implicit def coproductHint[T: Typeable]: CoproductHint[T] = new FlatCoproductHint[T]("coproductType")
 
 }
