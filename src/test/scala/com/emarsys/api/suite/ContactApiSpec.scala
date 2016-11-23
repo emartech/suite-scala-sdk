@@ -5,11 +5,11 @@ import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.model._
 import akka.stream.scaladsl.Flow
 import akka.stream.{ActorMaterializer, Materializer}
-import com.emarsys.api.suite.ContactApi.{GetDataError, GetDataRequest, GetDataResult}
 import com.emarsys.escher.akka.http.config.EscherConfig
 import com.typesafe.config.ConfigFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{AsyncWordSpec, Matchers}
+import DataTransformers._
 
 import scala.concurrent.ExecutionContextExecutor
 
