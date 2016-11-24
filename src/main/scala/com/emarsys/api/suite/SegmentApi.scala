@@ -7,7 +7,6 @@ import akka.stream.Materializer
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import com.emarsys.formats.SuiteSdkFormats._
 import com.emarsys.escher.akka.http.config.EscherConfig
-import com.emarsys.api.suite.DataTransformers._
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
 
@@ -15,26 +14,37 @@ private[suite] trait SegmentApi extends SuiteClient {
 
   import SegmentApi._
 
-  def create(customerId: Int, payload: SegmentCreatePayload): Future[GetDataResponse] = {
-    val path = "filter"
+  def create(customerId: Int, payload: CreateRequest): Future[CreateResponse] = {
+    val path    = "filter"
     val request = RequestBuilding.Put(Uri(baseUrl(customerId) + path), payload)
 
-    run[GetDataRawResponse](request).map(getDataResponseTransformer)
+    run[CreateRawResponse](request) map createTransformer
   }
 
 }
 
 object SegmentApi {
-  case class SegmentCreatePayload(name: String, contactCriteria: ContactCriteria,
-                                  description: String, baseContactListId: Option[Int])
+  case class CreateRequest(name: String,
+                           contactCriteria: ContactCriteria,
+                           description: String,
+                           baseContactListId: Option[Int])
 
   sealed trait ContactCriteria
   case class ContactCriteriaBranch(`type`: String, children: List[ContactCriteria]) extends ContactCriteria
-  case class ContactCriteriaLeaf(`type`: String, field: String, operator: String, value: String) extends ContactCriteria
+  case class ContactCriteriaLeaf(`type`: String, field: String, operator: String, value: String)
+      extends ContactCriteria
 
-  case class SegmentCreateRawResponse(string: String)
+  case class CreateRawResponseData(id: String)
+  case class CreateRawResponse(replyCode: Int, replyText: String, data: CreateRawResponseData)
+  case class CreateResponse(id: Int)
 
-  def apply(eConfig: EscherConfig)(implicit sys: ActorSystem, mat: Materializer, ex: ExecutionContextExecutor) = {
+  val createTransformer: CreateRawResponse => CreateResponse = r => CreateResponse(r.data.id.toInt)
+
+  def apply(eConfig: EscherConfig)(
+    implicit
+    sys: ActorSystem,
+    mat: Materializer,
+    ex: ExecutionContextExecutor): SegmentApi = {
 
     new SuiteClient with SegmentApi {
       override implicit val system       = sys

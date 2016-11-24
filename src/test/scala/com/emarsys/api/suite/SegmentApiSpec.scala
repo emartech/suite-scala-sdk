@@ -4,14 +4,11 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import akka.stream.scaladsl.Flow
 import akka.stream.{ActorMaterializer, Materializer}
-import com.emarsys.api.suite.SegmentApi.{ContactCriteriaBranch, ContactCriteriaLeaf, SegmentCreatePayload}
+import com.emarsys.api.suite.SegmentApi.{ContactCriteriaLeaf, CreateRequest}
 import com.emarsys.escher.akka.http.config.EscherConfig
 import com.typesafe.config.ConfigFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{AsyncWordSpec, Matchers}
-import spray.json._
-import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
-import com.emarsys.formats.SuiteSdkFormats._
 
 import scala.concurrent.ExecutionContextExecutor
 
@@ -26,7 +23,12 @@ class SegmentApiSpec extends AsyncWordSpec with Matchers with ScalaFutures {
   object TestSegmentApi {
 
     def apply(eConfig: EscherConfig,
-              response: HttpResponse)(implicit sys: ActorSystem, mat: Materializer, ex: ExecutionContextExecutor) =
+              response: HttpResponse)(
+      implicit
+      sys: ActorSystem,
+      mat: Materializer,
+      ex: ExecutionContextExecutor) =
+
       new SuiteClient with SegmentApi {
         override implicit val system       = sys
         override implicit val materializer = mat
@@ -37,48 +39,35 @@ class SegmentApiSpec extends AsyncWordSpec with Matchers with ScalaFutures {
       }
   }
 
-  val createdResponse = """{"replyCode":0,"replyText":"OK","data":""}"""
+  val createdResponse = """{"replyCode":0,"replyText":"OK","data":{"id":"100024015"}}"""
   val validationFailedResponse =
     """{"replyCode":1008,"replyText":"Validation error: Criteria cannot have children.","data":""}"""
   val customerId = 123
 
   "Segment Api" when {
 
-    "create segment called" should {
+    "create segment called vith valid payload" should {
       "return with valid response" in {
 
         val leaf           = ContactCriteriaLeaf("criteria", "email", "contains", "@gmail.com")
-        val payloadOneLeaf = SegmentCreatePayload("segment", leaf, "", None)
+        val payloadOneLeaf = CreateRequest("segment", leaf, "", None)
 
         segmentApi(StatusCodes.OK, createdResponse)
           .create(customerId, payloadOneLeaf)
-          .map(response => {
-            response.replyCode shouldEqual 0
-            response.replyText shouldEqual "OK"
-          })
+          .map(response => response.id shouldEqual 100024015)
       }
 
-//      "return with validation error response" in {
-//        segmentApi(StatusCodes.BadRequest, validationFailedResponse)
-//          .create(customerId,
-//            SegmentCreatePayload("segment",
-//              ContactCriteriaLeaf("criteria",
-//                "email",
-//                "contains",
-//                "@gmail.com"),
-//              "",
-//              None))
-//          .map(response => {
-//            response.replyCode shouldEqual 1008
-//            response.replyText shouldEqual "Validation error: Criteria cannot have children."
-//          }
-//          )
-//      }
+      "return with validation error response" in {
+        recoverToSucceededIf[Exception] {
+          segmentApi(StatusCodes.BadRequest, validationFailedResponse).create(
+            customerId,
+            CreateRequest("segment", ContactCriteriaLeaf("criteria", "email", "contains", "@gmail.com"), "", None))
+        }
+      }
     }
   }
 
-  def segmentApi(httpStatus: StatusCode, requestEntity: String) = {
+  def segmentApi(httpStatus: StatusCode, requestEntity: String) =
     TestSegmentApi(escherConfig,
                    HttpResponse(httpStatus, Nil, HttpEntity(ContentTypes.`application/json`, requestEntity)))
-  }
 }
