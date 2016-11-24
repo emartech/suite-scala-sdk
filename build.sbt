@@ -1,6 +1,6 @@
 name         := "suite-scala-sdk"
 organization := "com.emarsys"
-version      := "0.0.6"
+version      := "0.1.0"
 scalaVersion := "2.11.8"
 
 scalacOptions ++= Seq(
@@ -32,3 +32,5 @@ libraryDependencies ++= {
 }
 
 publishTo := Some(Resolver.file("releases", new File("releases")))
+
+scalaVersion in ThisBuild := "2.11.8"
