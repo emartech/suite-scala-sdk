@@ -80,8 +80,6 @@ class ContactApiSpec extends AsyncWordSpec with Matchers with ScalaFutures {
 
       "return existing fields in case of successful response" in {
         contactApi(OK, validResponse).getData(customerId, GetDataRequest("id", Nil, None)) map { response =>
-          response.replyCode shouldEqual 0
-          response.replyText shouldEqual "OK"
           response.data shouldEqual GetDataResult(List(
                                                     Map("id"        -> Some("123"),
                                                         "uid"       -> Some("abc"),

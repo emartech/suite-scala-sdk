@@ -1,7 +1,6 @@
 package com.emarsys.api.suite
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
-
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.StatusCodes._
@@ -22,12 +21,12 @@ trait RestClient extends EscherDirectives {
     Source.single(request).via(connectionFlow).runWith(Sink.head)
   }
 
-  def run[S](request: HttpRequest)(implicit um: Unmarshaller[ResponseEntity, S]): Future[S] = {
+  def runRaw[S](request: HttpRequest)(implicit um: Unmarshaller[ResponseEntity, S]): Future[S] = {
     for {
     signed   <- signRequest(serviceName)(executor, materializer)(request)
     response <- sendRequest(signed)
     result   <- response.status match {
-            case s: Success => Unmarshal(response.entity).to[S]
+            case Success(_) => Unmarshal(response.entity).to[S]
             case status     => Unmarshal(response.entity).to[String].map { responseBody =>
               system.log.error("Request to {} failed with status: {} / body: {}", request.uri, status, responseBody)
               throw new Exception(s"Rest client request failed for ${request.uri}")

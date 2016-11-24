@@ -63,8 +63,6 @@ class ContactFieldApiSpec extends AsyncWordSpec with Matchers with ScalaFutures 
 
       "return existing fields in case of successful response" in {
         contactField(OK, validResponse).list(customerId) map { response =>
-          response.replyCode shouldEqual 0
-          response.replyText shouldEqual "OK"
           response.data shouldEqual List(
             FieldItem(0, "Interests", "interests", "interests"),
             FieldItem(9, "Title", "single choice", "")
@@ -74,8 +72,6 @@ class ContactFieldApiSpec extends AsyncWordSpec with Matchers with ScalaFutures 
 
       "return translated existing fields for in case of successful response" in {
         contactField(OK, validResponse).list(customerId, "en") map { response =>
-          response.replyCode shouldEqual 0
-          response.replyText shouldEqual "OK"
           response.data shouldEqual List(
             FieldItem(0, "Interests", "interests", "interests"),
             FieldItem(9, "Title", "single choice", "")
@@ -85,8 +81,6 @@ class ContactFieldApiSpec extends AsyncWordSpec with Matchers with ScalaFutures 
 
       "return empty list for data in case of empty data response" in {
         contactField(OK, emptyDataResponse).list(customerId, "en") map { response =>
-          response.replyCode shouldEqual 1
-          response.replyText shouldEqual "Unauthorized"
           response.data shouldEqual List()
         }
       }

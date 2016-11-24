@@ -13,13 +13,11 @@ import scala.concurrent.{ExecutionContextExecutor, Future}
 
 private[suite] trait ContactApi extends SuiteClient {
 
-  import ContactApi._
-
   def getData(customerId: Int, entity: GetDataRequest): Future[GetDataResponse] = {
     val path    = "contact/getdata"
     val request = RequestBuilding.Post(Uri(baseUrl(customerId) + path), entity)
 
-    run[GetDataRawResponse](request).map(getDataResponseTransformer)
+    run[GetDataRawResponseData](request).map(getDataResponseTransformer)
   }
 
 

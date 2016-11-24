@@ -5,6 +5,7 @@ import akka.http.scaladsl.client.RequestBuilding
 import akka.http.scaladsl.model._
 import akka.stream.Materializer
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
+import com.emarsys.api.suite.SuiteClient.SuiteRawResponse
 import com.emarsys.formats.SuiteSdkFormats._
 import com.emarsys.escher.akka.http.config.EscherConfig
 
@@ -18,9 +19,8 @@ private[suite] trait SegmentApi extends SuiteClient {
     val path    = "filter"
     val request = RequestBuilding.Put(Uri(baseUrl(customerId) + path), payload)
 
-    run[CreateRawResponse](request) map createTransformer
+    run[CreateRawResponseData](request) map createTransformer
   }
-
 }
 
 object SegmentApi {
@@ -35,10 +35,9 @@ object SegmentApi {
       extends ContactCriteria
 
   case class CreateRawResponseData(id: String)
-  case class CreateRawResponse(replyCode: Int, replyText: String, data: CreateRawResponseData)
   case class CreateResponse(id: Int)
 
-  val createTransformer: CreateRawResponse => CreateResponse = r => CreateResponse(r.data.id.toInt)
+  val createTransformer: SuiteRawResponse[CreateRawResponseData] => CreateResponse = r => CreateResponse(r.data.id.toInt)
 
   def apply(eConfig: EscherConfig)(
     implicit
