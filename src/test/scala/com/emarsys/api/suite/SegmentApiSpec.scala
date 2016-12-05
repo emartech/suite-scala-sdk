@@ -49,7 +49,7 @@ class SegmentApiSpec extends AsyncWordSpec with Matchers with ScalaFutures {
     "create segment called vith valid payload" should {
       "return with valid response" in {
 
-        val leaf           = ContactCriteriaLeaf("criteria", "email", "contains", "@gmail.com")
+        val leaf           = ContactCriteriaLeaf("criteria", Right("email"), "contains", "@gmail.com")
         val payloadOneLeaf = CreateRequest("segment", leaf, "", None)
 
         segmentApi(StatusCodes.OK, createdResponse)
@@ -61,7 +61,7 @@ class SegmentApiSpec extends AsyncWordSpec with Matchers with ScalaFutures {
         recoverToSucceededIf[Exception] {
           segmentApi(StatusCodes.BadRequest, validationFailedResponse).create(
             customerId,
-            CreateRequest("segment", ContactCriteriaLeaf("criteria", "email", "contains", "@gmail.com"), "", None))
+            CreateRequest("segment", ContactCriteriaLeaf("criteria", Right("email"), "contains", "@gmail.com"), "", None))
         }
       }
     }

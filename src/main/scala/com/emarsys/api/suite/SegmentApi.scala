@@ -31,7 +31,7 @@ object SegmentApi {
 
   sealed trait ContactCriteria
   case class ContactCriteriaBranch(`type`: String, children: List[ContactCriteria]) extends ContactCriteria
-  case class ContactCriteriaLeaf(`type`: String, field: String, operator: String, value: String)
+  case class ContactCriteriaLeaf(`type`: String, field: Either[Int, String], operator: String, value: String)
       extends ContactCriteria
 
   case class CreateRawResponseData(id: String)
