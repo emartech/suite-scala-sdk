@@ -6,7 +6,7 @@ Scala sdk for suite
 ### Contact Fields
 
 #### Listing Available Fields
-GET https://api.emarsys.net/api/v2/field -> [ContactFieldApi.list](http://documentation.emarsys.com/resource/developers/endpoints/contacts/list-fields/)
+GET /api.emarsys.net/api/v2/field -> [ContactFieldApi.list](http://documentation.emarsys.com/resource/developers/endpoints/contacts/list-fields/)
 
 ##### Listing predict fields
 ContactFieldApi.listPredictFields
@@ -19,4 +19,4 @@ POST /api/v2/contact/getdata -> [ContactApi.getData](http://documentation.emarsy
 ### Segments
 
 #### Creating a Segment
-PUT https://api.emarsys.net/api/v2/filter -> [SegmentApi.create](http://documentation.emarsys.com/resource/developers/endpoints/contacts/creating-a-segment/)
+PUT /api.emarsys.net/api/v2/filter -> [SegmentApi.create](http://documentation.emarsys.com/resource/developers/endpoints/contacts/creating-a-segment/)
