@@ -17,7 +17,7 @@ private[suite] trait ContactApi extends SuiteClient {
     val path    = "contact/getdata"
     val request = RequestBuilding.Post(Uri(baseUrl(customerId) + path), entity)
 
-    run[GetDataRawResponseData](request).map(getDataResponseTransformer)
+    run[GetDataRawResponseData](request) map getDataResponseTransformer
   }
 
 

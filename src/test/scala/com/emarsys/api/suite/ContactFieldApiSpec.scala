@@ -53,6 +53,18 @@ class ContactFieldApiSpec extends AsyncWordSpec with Matchers with ScalaFutures 
                         |      "name": "Title",
                         |      "application_type": "single choice",
                         |      "string_id": ""
+                        |    },
+                        |    {
+                        |      "id": 11,
+                        |      "name": "Predict something",
+                        |      "application_type": "simple",
+                        |      "string_id": ""
+                        |    },
+                        |    {
+                        |      "id": 13,
+                        |      "name": "another predict",
+                        |      "application_type": "multi choice",
+                        |      "string_id": ""
                         |    }
                         |  ]
                         |}""".stripMargin
@@ -65,7 +77,9 @@ class ContactFieldApiSpec extends AsyncWordSpec with Matchers with ScalaFutures 
         contactField(OK, validResponse).list(customerId) map { response =>
           response.data shouldEqual List(
             FieldItem(0, "Interests", "interests", "interests"),
-            FieldItem(9, "Title", "single choice", "")
+            FieldItem(9, "Title", "single choice", ""),
+            FieldItem(11, "Predict something", "simple", ""),
+            FieldItem(13, "another predict", "multi choice", "")
           )
         }
       }
@@ -74,7 +88,27 @@ class ContactFieldApiSpec extends AsyncWordSpec with Matchers with ScalaFutures 
         contactField(OK, validResponse).list(customerId, "en") map { response =>
           response.data shouldEqual List(
             FieldItem(0, "Interests", "interests", "interests"),
-            FieldItem(9, "Title", "single choice", "")
+            FieldItem(9, "Title", "single choice", ""),
+            FieldItem(11, "Predict something", "simple", ""),
+            FieldItem(13, "another predict", "multi choice", "")
+          )
+        }
+      }
+
+      "return predict fields for customer" in {
+        contactField(OK, validResponse).listPredictFields(customerId) map { response =>
+          response.data shouldEqual List(
+            FieldItem(11, "Predict something", "simple", ""),
+            FieldItem(13, "another predict", "multi choice", "")
+          )
+        }
+      }
+
+      "return translated predict fields for customer" in {
+        contactField(OK, validResponse).listPredictFields(customerId, "en") map { response =>
+          response.data shouldEqual List(
+            FieldItem(11, "Predict something", "simple", ""),
+            FieldItem(13, "another predict", "multi choice", "")
           )
         }
       }
@@ -99,7 +133,7 @@ class ContactFieldApiSpec extends AsyncWordSpec with Matchers with ScalaFutures 
     }
   }
 
-  def contactField(httpStatus: StatusCode, requestEntity: String) = {
+  private def contactField(httpStatus: StatusCode, requestEntity: String) = {
     TestContactFieldApi(escherConfig,
                         HttpResponse(httpStatus, Nil, HttpEntity(ContentTypes.`application/json`, requestEntity)))
   }
