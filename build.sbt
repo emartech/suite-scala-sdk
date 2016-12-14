@@ -1,7 +1,9 @@
+val scalaV = "2.12.1"
+
 name         := "suite-scala-sdk"
 organization := "com.emarsys"
 version      := "0.1.1"
-scalaVersion := "2.11.8"
+scalaVersion := scalaV
 
 scalacOptions ++= Seq(
   "-deprecation",
@@ -27,10 +29,10 @@ libraryDependencies ++= {
     "com.github.fommil"     %% "spray-json-shapeless" % "1.3.0",
     "org.slf4j"             %  "slf4j-nop"            % "1.6.4",
     "org.scalatest"         %% "scalatest"            % scalaTestV % "test",
-    "com.emarsys"           %% "escher-akka-http"     % "0.0.9"
+    "com.emarsys"           %% "escher-akka-http"     % "0.1.0"
   )
 }
 
 publishTo := Some(Resolver.file("releases", new File("releases")))
 
-scalaVersion in ThisBuild := "2.11.8"
+scalaVersion in ThisBuild := scalaV
