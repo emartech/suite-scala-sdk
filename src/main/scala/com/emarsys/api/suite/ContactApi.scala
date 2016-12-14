@@ -20,12 +20,15 @@ private[suite] trait ContactApi extends SuiteClient {
     run[GetDataRawResponseData](request) map getDataResponseTransformer
   }
 
-
 }
 
 object ContactApi {
 
-  def apply(eConfig: EscherConfig)(implicit sys: ActorSystem, mat: Materializer, ex: ExecutionContextExecutor) = {
+  def apply(eConfig: EscherConfig)(
+    implicit
+    sys: ActorSystem,
+    mat: Materializer,
+    ex: ExecutionContextExecutor): ContactApi = {
 
     new SuiteClient with ContactApi {
       override implicit val system       = sys

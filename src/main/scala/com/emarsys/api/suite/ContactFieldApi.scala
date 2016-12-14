@@ -49,8 +49,8 @@ private[suite] trait ContactFieldApi extends SuiteClient {
 
 object ContactFieldApi {
 
-  case class FieldItem(id: Int, name: String, application_type: String, string_id: String)
-  case class ListResponse(data: List[FieldItem])
+  final case class FieldItem(id: Int, name: String, application_type: String, string_id: String)
+  final case class ListResponse(data: List[FieldItem])
   type ListRawResponseData = Either[String, List[FieldItem]]
 
   def apply(eConfig: EscherConfig)(implicit sys: ActorSystem, mat: Materializer, ex: ExecutionContextExecutor) =

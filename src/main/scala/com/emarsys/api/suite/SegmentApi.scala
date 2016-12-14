@@ -24,18 +24,18 @@ private[suite] trait SegmentApi extends SuiteClient {
 }
 
 object SegmentApi {
-  case class CreateRequest(name: String,
+  final case class CreateRequest(name: String,
                            contactCriteria: ContactCriteria,
                            description: String,
                            baseContactListId: Option[Int])
 
   sealed trait ContactCriteria
-  case class ContactCriteriaBranch(`type`: String, children: List[ContactCriteria]) extends ContactCriteria
-  case class ContactCriteriaLeaf(`type`: String, field: Either[Int, String], operator: String, value: String)
+  final case class ContactCriteriaBranch(`type`: String, children: List[ContactCriteria]) extends ContactCriteria
+  final case class ContactCriteriaLeaf(`type`: String, field: Either[Int, String], operator: String, value: String)
       extends ContactCriteria
 
-  case class CreateRawResponseData(id: String)
-  case class CreateResponse(id: Int)
+  final case class CreateRawResponseData(id: String)
+  final case class CreateResponse(id: Int)
 
   val createTransformer: SuiteRawResponse[CreateRawResponseData] => CreateResponse = r => CreateResponse(r.data.id.toInt)
 
