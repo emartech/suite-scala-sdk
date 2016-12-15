@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import akka.stream.scaladsl.Flow
 import akka.stream.{ActorMaterializer, Materializer}
-import com.emarsys.api.suite.SegmentApi.{ContactCriteriaLeaf, CreateRequest}
+import com.emarsys.api.suite.SegmentApi.{BehaviorCriteriaLeaf, ContactCriteriaLeaf, CreateRequest}
 import com.emarsys.escher.akka.http.config.EscherConfig
 import com.typesafe.config.ConfigFactory
 import org.scalatest.concurrent.ScalaFutures
@@ -49,8 +49,9 @@ class SegmentApiSpec extends AsyncWordSpec with Matchers with ScalaFutures {
     "create segment called vith valid payload" should {
       "return with valid response" in {
 
-        val leaf           = ContactCriteriaLeaf("criteria", Right("email"), "contains", "@gmail.com")
-        val payloadOneLeaf = CreateRequest("segment", leaf, "", None)
+        val contactCriteriaLeaf  = ContactCriteriaLeaf("criteria", Right("email"), "contains", "@gmail.com")
+        val behaviorCriteriaLeaf = BehaviorCriteriaLeaf("criteria")
+        val payloadOneLeaf       = CreateRequest("segment", contactCriteriaLeaf, behaviorCriteriaLeaf, "", None)
 
         segmentApi(StatusCodes.OK, createdResponse)
           .create(customerId, payloadOneLeaf)
@@ -61,7 +62,7 @@ class SegmentApiSpec extends AsyncWordSpec with Matchers with ScalaFutures {
         recoverToSucceededIf[Exception] {
           segmentApi(StatusCodes.BadRequest, validationFailedResponse).create(
             customerId,
-            CreateRequest("segment", ContactCriteriaLeaf("criteria", Right("email"), "contains", "@gmail.com"), "", None))
+            CreateRequest("segment", ContactCriteriaLeaf("criteria", Right("email"), "contains", "@gmail.com"), BehaviorCriteriaLeaf("criteria"), "", None))
         }
       }
     }
