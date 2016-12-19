@@ -51,7 +51,7 @@ class SegmentApiSpec extends AsyncWordSpec with Matchers with ScalaFutures {
 
         val contactCriteriaLeaf  = ContactCriteriaLeaf("criteria", Right("email"), "contains", "@gmail.com")
         val behaviorCriteriaLeaf = BehaviorCriteriaLeaf("criteria")
-        val payloadOneLeaf       = CreateRequest("segment", contactCriteriaLeaf, behaviorCriteriaLeaf, "", None)
+        val payloadOneLeaf       = CreateRequest("segment", Some(contactCriteriaLeaf), Some(behaviorCriteriaLeaf), "", None)
 
         segmentApi(StatusCodes.OK, createdResponse)
           .create(customerId, payloadOneLeaf)
@@ -62,7 +62,7 @@ class SegmentApiSpec extends AsyncWordSpec with Matchers with ScalaFutures {
         recoverToSucceededIf[Exception] {
           segmentApi(StatusCodes.BadRequest, validationFailedResponse).create(
             customerId,
-            CreateRequest("segment", ContactCriteriaLeaf("criteria", Right("email"), "contains", "@gmail.com"), BehaviorCriteriaLeaf("criteria"), "", None))
+            CreateRequest("segment", Some(ContactCriteriaLeaf("criteria", Right("email"), "contains", "@gmail.com")), Some(BehaviorCriteriaLeaf("criteria")), "", None))
         }
       }
     }

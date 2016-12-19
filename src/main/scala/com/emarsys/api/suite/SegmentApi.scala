@@ -26,8 +26,8 @@ private[suite] trait SegmentApi extends SuiteClient {
 object SegmentApi {
   final case class CreateRequest(
     name              : String,
-    contactCriteria   : ContactCriteria,
-    behaviorCriteria  : BehaviorCriteria,
+    contactCriteria   : Option[ContactCriteria],
+    behaviorCriteria  : Option[BehaviorCriteria],
     description       : String,
     baseContactListId : Option[Int])
 
